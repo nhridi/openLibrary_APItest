@@ -1,17 +1,21 @@
 package api;
 
 import io.restassured.response.Response;
+import models.BookResponse;
+import static io.restassured.RestAssured.given;
 
-public class BookClient extends BaseApiClient {
-    public static final String BOOKS = "?title=the+lord+of+the+rings";
 
-    public Response getResponse() {
+public class BookClient {
 
-        return getBaseRequestSpecification().get(BOOKS);
-    }
+    public BookResponse getBookInformation(String title) {
+        Response response = given()
+                .param("title", title)
+                .when()
+                .get("https://openlibrary.org/search.json")
+                .then()
+                .statusCode(200)
+                .extract().response();
 
-    public Response getBookInformation() {
-        return getBaseRequestSpecification()
-                .queryParam("title", "the+lord+of+the+rings").get("/search.json");
+        return response.as(BookResponse.class);
     }
 }
