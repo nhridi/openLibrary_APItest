@@ -1,33 +1,29 @@
 package tests;
 
 import api.BookClient;
-import io.restassured.response.Response;
-import models.BookResponse;
-import models.Doc;
-import org.apache.http.HttpStatus;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OpenLibraryApiTests extends BaseTest {
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+public class OpenLibraryApiTests extends BaseTest {
     private static final String EXPECTED_ISBN = "9781903663660";
     private static final String EXPECTED_TITLE = "The Lord of the Rings";
+
     private final BookClient bookClient = new BookClient();
+
     @Test
-    public void testBookDetails() {
-        BookResponse bookResponse = bookClient.getBookInformation("the lord of the rings");
-        boolean isbnFound = bookResponse.getDocs().stream()
-                .flatMap(doc -> doc.getIsbn().stream())
-                .anyMatch(isbn -> isbn.equals(EXPECTED_ISBN));
+    public void testBookDetails() throws IOException {
+        HashMap<String, Object> bookData = bookClient.getBookInformation("the lord of the rings");
+        List<Map<String, Object>> books = (List<Map<String, Object>>) bookData.get("docs");
 
-        Assert.assertTrue(isbnFound, "ISBN not found in any book entry.");
+        boolean isbnFound = books.stream()
+                .anyMatch(book -> ((List<String>)book.get("isbn")).contains(EXPECTED_ISBN) && book.get("title").equals(EXPECTED_TITLE));
 
-        Doc book = bookResponse.getDocs().stream()
-                .filter(doc -> doc.getIsbn().contains(EXPECTED_ISBN))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Book with expected ISBN not found"));
-
-        Assert.assertEquals(book.getTitle(), EXPECTED_TITLE, "Book title does not match.");
+        Assert.assertTrue(isbnFound, "Book with expected ISBN and title not found.");
     }
 }
 

@@ -1,13 +1,16 @@
 package api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
-import models.BookResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import static io.restassured.RestAssured.given;
 
 
 public class BookClient {
-
-    public BookResponse getBookInformation(String title) {
+    public HashMap<String, Object> getBookInformation(String title) throws IOException {
         Response response = given()
                 .param("title", title)
                 .when()
@@ -16,6 +19,7 @@ public class BookClient {
                 .statusCode(200)
                 .extract().response();
 
-        return response.as(BookResponse.class);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(response.asString(), HashMap.class);
     }
 }
