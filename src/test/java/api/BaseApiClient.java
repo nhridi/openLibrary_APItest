@@ -1,6 +1,6 @@
 package api;
 
-import environment.EnvironmentConfig;
+import config.EnvironmentConfig;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
